@@ -1,0 +1,54 @@
+[settings]  # General configuration settings
+gh-user = "steven-murray"
+gh-key = # Add a token: https://github.com/settings/tokens/new
+
+[repos]  # This section contains all repo-specific settings.
+org-file = "/home/steven/org/work.org"  # The org-file that should contain the output.
+
+[repos.defaults.filters]    # The "defaults" dict contains default settings for each org/repo
+assignee = "steven-murray"  # The "filters" filter out particular issues/prs completely
+state = "open"
+prs = false
+
+[repos.steven-murray]       # Each repo is grouped into organizations/users.
+[repos.steven-murray.defaults.filters]  # Each org/user can have its own defaults.
+# don't filter on assignee -- every issue is my issue in my own repos.
+state = "open"
+
+[repos.steven-murray.hankel]  # Specify to get issues from my "hankel" repo.
+
+[[repos.steven-murray.hankel.priority]]
+# Specify how to assign priorities to each issue. There can be multiple values of this
+# header. Each specifies a prioritizer function to use,and they will be called in order.
+# The highest priority (closest to 'A') will be used.
+fnc = "static"  # A function name defined in `github_to_org.priorities`
+priority = "C"  # Any other arguments given to the function.
+
+
+[repos.steven-murray.21cmSense]
+
+[[repos.steven-murray.21cmSense.priority]]
+fnc = "static"
+priority = "C"
+
+[[repos.steven-murray.21cmSense.priority]]  # An example of having two priority functions.
+fnc = "by_milestone"
+milestone_map = {RASG = "B", JOSS = "B"}  # Issues assigned a milestone of "RASG" get assigned priority of "B"
+
+[[repos.steven-murray.21cmSense.priority]]  # A third priority function...
+fnc = "by_label"
+label_map = {bug = "A"}
+
+
+[repos.hera-team]  # Another org to find issues/repos in
+[repos.hera-team.hera_sim]
+
+[[repos.hera-team.hera_sim.priority]]
+fnc = "by_milestone_label"
+# The milestone_label prioritizer only assigns priorities to issues if they first are
+# assigned a given milestone, then a given label.
+milestone_map = {"v1.0.0" = {"priority: high" = "A", "priority: medium" = "B", "priority: low" = "C"}}
+
+[[repos.hera-team.hera_sim.priority]]
+fnc = "by_label"
+label_map = {"priority: high" = "B", "priority: medium" = "C", "priority: low" = "D"}
