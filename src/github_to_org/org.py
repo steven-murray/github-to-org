@@ -33,7 +33,7 @@ def get_org_node(repo_name: str, fname: [str, Path]) -> Tuple[str, int]:
             node_level = get_node_level(line)
             if (
                 node_level
-                and repo_name.split("/")[1].lower() in line.lower()
+                and " " + repo_name.split("/")[1].lower() in line.lower()
                 and ":gh:" in line
             ):
                 in_node = True
