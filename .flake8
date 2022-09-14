@@ -9,3 +9,9 @@ ignore =
     E231
 max-line-length = 88
 max-complexity = 20
+exclude =
+    .tox
+    build
+    dist
+    .eggs
+    docs/conf.py
