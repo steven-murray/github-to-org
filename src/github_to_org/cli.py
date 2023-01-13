@@ -33,10 +33,12 @@ logging.basicConfig(
 @main.command()
 @click.option("-r", "--repo", type=str, multiple=True, help="repo(s) to search for")
 @click.option("-o", "--org", type=str, multiple=True, help="org(s) to search for")
-def write(repo, org):
+@click.option("-l", '--log-level', type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR']), help='log level')
+def write(repo, org, log_level):
     issues = get_all_github_issues(repo, org)
     output = get_org_nodes(issues)
 
+    logging.getLogger('github_to_org').setLevel(log_level)
     for repo, text in output.items():
         console.rule(repo)
         if text:

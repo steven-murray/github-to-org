@@ -21,7 +21,7 @@ def get_node_level(line) -> int:
         return 0
 
 
-def get_org_node(repo_name: str, fname: [str, Path]) -> Tuple[str, int]:
+def get_org_node(repo_name: str, fname: [str, Path], ) -> Tuple[str, int]:
     """Get a unique org node associated with a repository"""
 
     with open(fname, "r") as fl:
@@ -31,9 +31,10 @@ def get_org_node(repo_name: str, fname: [str, Path]) -> Tuple[str, int]:
         start = None
         for i, line in enumerate(lines):
             node_level = get_node_level(line)
+            tag = " " + repo_name.split("/")[1].lower()
             if (
                 node_level
-                and " " + repo_name.split("/")[1].lower() in line.lower()
+                and (f"{tag} " in line.lower() or f"{tag}-code" in line.lower())
                 and ":gh:" in line
             ):
                 in_node = True
@@ -53,14 +54,14 @@ def get_org_node(repo_name: str, fname: [str, Path]) -> Tuple[str, int]:
             return None, None
 
 
-def get_existing_tasks(node: str, repo: str) -> List[int]:
+def get_existing_tasks(node: str, repo: str) -> dict[int, str]:
     """Find issue/pr ids of tasks already in the task list."""
-    ids = []
+    ids = {}
     for line in node.split("\n"):
         if f"{repo.lower()}/issues/" in line.lower():
             logger.debug(f"Found /issues/ in line {line}")
             try:
-                ids.append(int(line.split("/issues/")[-1].split("]")[0]))
+                ids[int(line.split("/issues/")[-1].split("]")[0])] = line
             except ValueError:
                 warnings.warn(
                     f"This line has formatting incompatible with gh2org: {line}"
@@ -68,7 +69,7 @@ def get_existing_tasks(node: str, repo: str) -> List[int]:
         elif f"{repo.lower()}/pulls/" in line.lower():
             logger.debug(f"Found /pull/ in line {line}")
             try:
-                ids.append(int(line.split("/pull/")[-1].split("]")[0]))
+                ids[int(line.split("/pull/")[-1].split("]")[0])] = line
             except ValueError:
                 warnings.warn(
                     f"This line has formatting incompatible with gh2org: {line}"
@@ -77,7 +78,7 @@ def get_existing_tasks(node: str, repo: str) -> List[int]:
 
 
 def convert_issue_list_to_org(
-    issues: List[Issue], existing_tasks: List[int], settings: dict, level: int
+    issues: List[Issue], existing_tasks: dict[int, str], settings: dict, level: int
 ) -> str:
     """Convert your list of issues to an Org structure"""
     text = ""
@@ -91,13 +92,9 @@ def convert_issue_list_to_org(
 
 
 def issue_to_node_str(
-    issue: Issue, priority: [None, str], schedule: dt.datetime, level: int
+    issue: Issue, priority: str | None, schedule: dt.datetime, level: int
 ):
-    if priority is None:
-        priority = ""
-    else:
-        priority = f"[#{priority}]"
-
+    priority = "" if priority is None else f"[#{priority}]"
     if schedule is None:
         schedule = ""
     else:
@@ -107,6 +104,15 @@ def issue_to_node_str(
         f"{'*'*level} TODO {priority} [[{issue.html_url}][{issue.repository.name}/"
         f"{issue.number}]]: {issue.title}\n"
     )
+
+def find_closed_issues(existing_tasks: dict[int, str], issues: List[Issue]) -> str:
+    text = ""
+    issue_ids = [issue.number for issue in issues]
+    for task, description in existing_tasks.items():
+        if task not in issue_ids:
+            text += f"CLOSE #{task}: {description}\n"
+
+    return text
 
 
 def get_org_nodes(issues: dict) -> dict:
@@ -129,6 +135,8 @@ def get_org_nodes(issues: dict) -> dict:
             settings=repo_cfg[repo],
             level=level or 0,
         )
+
+        text += find_closed_issues(existing, issue_list)
 
         out[repo] = text
 
