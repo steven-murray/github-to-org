@@ -12,7 +12,6 @@ from .schedules import get_schedule
 
 logger = logging.getLogger(__name__)
 
-
 def get_node_level(line) -> int:
     """Get the node level of a line, returning 0 if the line doesn't define a node."""
     if line.strip().startswith("*"):
@@ -21,7 +20,7 @@ def get_node_level(line) -> int:
         return 0
 
 
-def get_org_node(repo_name: str, fname: [str, Path], ) -> Tuple[str, int]:
+def get_org_node(repo_name: str, fname: str | Path, ) -> Tuple[str, int]:
     """Get a unique org node associated with a repository"""
 
     with open(fname, "r") as fl:
@@ -66,7 +65,7 @@ def get_existing_tasks(node: str, repo: str) -> dict[int, str]:
                 warnings.warn(
                     f"This line has formatting incompatible with gh2org: {line}"
                 )
-        elif f"{repo.lower()}/pulls/" in line.lower():
+        elif f"{repo.lower()}/pull/" in line.lower():
             logger.debug(f"Found /pull/ in line {line}")
             try:
                 ids[int(line.split("/pull/")[-1].split("]")[0])] = line
@@ -109,25 +108,28 @@ def find_closed_issues(existing_tasks: dict[int, str], issues: List[Issue]) -> s
     text = ""
     issue_ids = [issue.number for issue in issues]
     for task, description in existing_tasks.items():
-        if task not in issue_ids:
-            text += f"CLOSE #{task}: {description}\n"
+        if task not in issue_ids and "DONE" not in description and "CANCELLED" not in description:
+            text += f"#{task}: {description}\n"
 
     return text
 
 
-def get_org_nodes(issues: dict) -> dict:
+def get_org_nodes(issues: dict) -> Tuple[dict, dict]:
     repo_cfg = get_repo_config()
 
     out = {}
+    closers = {}
     for repo, issue_list in issues.items():
 
         node, level = get_org_node(repo, repo_cfg[repo]["org-file"])
         logger.debug(f"For repo {repo}, got node text:")
         logger.debug(node)
+        
         if node is not None:
             existing = get_existing_tasks(node, repo)
+            logger.debug(f"Existing Tasks: {existing}")
         else:
-            existing = []
+            existing = {}
 
         text = convert_issue_list_to_org(
             issue_list,
@@ -136,13 +138,12 @@ def get_org_nodes(issues: dict) -> dict:
             level=level or 0,
         )
 
-        text += find_closed_issues(existing, issue_list)
+        closers[repo] =  find_closed_issues(existing, issue_list)
 
         out[repo] = text
+    return out, closers
 
-    return out
 
-
-def write_org(org, fname: [str, Path]):
+def write_org(org, fname: str | Path):
     """Write out an Org structure to file"""
     pass
