@@ -22,7 +22,7 @@ logging.basicConfig(
             console=console,
             show_time=False,
             show_path=False,
-            #markup=True,
+            # markup=True,
             rich_tracebacks=True,
             tracebacks_show_locals=True,
         )
@@ -33,9 +33,15 @@ logging.basicConfig(
 @main.command()
 @click.option("-r", "--repo", type=str, multiple=True, help="repo(s) to search for")
 @click.option("-o", "--org", type=str, multiple=True, help="org(s) to search for")
-@click.option("-l", '--log-level', type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR']), help='log level', default="INFO")
+@click.option(
+    "-l",
+    "--log-level",
+    type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR"]),
+    help="log level",
+    default="INFO",
+)
 def write(repo, org, log_level):
-    logging.getLogger('github_to_org').setLevel(log_level)
+    logging.getLogger("github_to_org").setLevel(log_level)
 
     issues = get_all_github_issues(repo, org)
     output, closers = get_org_nodes(issues)
@@ -45,7 +51,7 @@ def write(repo, org, log_level):
             print(text)
         else:
             console.print("[green bold] :heavy_check_mark: All tasks already in org!")
-        
+
         ctxt = closers[repo]
         if ctxt:
             console.print()

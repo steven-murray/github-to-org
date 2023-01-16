@@ -12,6 +12,7 @@ from .schedules import get_schedule
 
 logger = logging.getLogger(__name__)
 
+
 def get_node_level(line) -> int:
     """Get the node level of a line, returning 0 if the line doesn't define a node."""
     if line.strip().startswith("*"):
@@ -20,7 +21,10 @@ def get_node_level(line) -> int:
         return 0
 
 
-def get_org_node(repo_name: str, fname: str | Path, ) -> Tuple[str, int]:
+def get_org_node(
+    repo_name: str,
+    fname: str | Path,
+) -> Tuple[str, int]:
     """Get a unique org node associated with a repository"""
 
     with open(fname, "r") as fl:
@@ -104,11 +108,16 @@ def issue_to_node_str(
         f"{issue.number}]]: {issue.title}\n"
     )
 
+
 def find_closed_issues(existing_tasks: dict[int, str], issues: List[Issue]) -> str:
     text = ""
     issue_ids = [issue.number for issue in issues]
     for task, description in existing_tasks.items():
-        if task not in issue_ids and "DONE" not in description and "CANCELLED" not in description:
+        if (
+            task not in issue_ids
+            and "DONE" not in description
+            and "CANCELLED" not in description
+        ):
             text += f"#{task}: {description}\n"
 
     return text
@@ -124,7 +133,7 @@ def get_org_nodes(issues: dict) -> Tuple[dict, dict]:
         node, level = get_org_node(repo, repo_cfg[repo]["org-file"])
         logger.debug(f"For repo {repo}, got node text:")
         logger.debug(node)
-        
+
         if node is not None:
             existing = get_existing_tasks(node, repo)
             logger.debug(f"Existing Tasks: {existing}")
@@ -138,7 +147,7 @@ def get_org_nodes(issues: dict) -> Tuple[dict, dict]:
             level=level or 0,
         )
 
-        closers[repo] =  find_closed_issues(existing, issue_list)
+        closers[repo] = find_closed_issues(existing, issue_list)
 
         out[repo] = text
     return out, closers
