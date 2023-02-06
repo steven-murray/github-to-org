@@ -9,7 +9,6 @@ _schedule_funcs = {None: lambda issue, **kwargs: None}
 
 
 def scheduler(func):
-
     _schedule_funcs[func.__name__] = func
 
     @wraps(func)

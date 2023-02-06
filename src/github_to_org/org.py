@@ -129,7 +129,6 @@ def get_org_nodes(issues: dict) -> Tuple[dict, dict]:
     out = {}
     closers = {}
     for repo, issue_list in issues.items():
-
         node, level = get_org_node(repo, repo_cfg[repo]["org-file"])
         logger.debug(f"For repo {repo}, got node text:")
         logger.debug(node)
