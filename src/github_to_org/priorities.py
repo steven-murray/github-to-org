@@ -6,7 +6,6 @@ _priority_funcs = {None: lambda issue, **kwargs: None}
 
 
 def prioritizer(func):
-
     _priority_funcs[func.__name__] = func
 
     @wraps(func)
