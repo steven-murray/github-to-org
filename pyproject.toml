@@ -35,7 +35,7 @@ repository = "https://github.com/steven-murray/github-to-org"
 
 [tool.setuptools.dynamic]
 readme = {file = ["README.md"]}
-    
+
 
 [project.optional-dependencies]
 tests = [
@@ -61,13 +61,13 @@ addopts = [
     "--cov-report term-missing",
     "--verbose"
 ]
-    
+
 norecursedirs = [
     "dist",
     "build",
     ".tox"
 ]
-    
+
 testpaths = "tests"
 
 
