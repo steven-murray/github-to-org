@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+"""Turn github issues into org-mode tasks."""
 from pkg_resources import DistributionNotFound, get_distribution
 
 try:

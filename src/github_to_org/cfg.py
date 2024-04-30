@@ -1,11 +1,14 @@
-import toml
+"""Configuration."""
 from pathlib import Path
 
-with open(Path("~/.ghorg").expanduser(), "r") as fl:
+import toml
+
+with Path("~/.ghorg").expanduser().open() as fl:
     config = toml.load(fl)
 
 
 def get_repo_config() -> dict:
+    """Get repository configuration from the main config."""
     repos = config["repos"]
     defaults = {k: v for k, v in repos.items() if not isinstance(v, dict)}
     defaults.update(repos.get("defaults", {}))
@@ -18,7 +21,7 @@ def get_repo_config() -> dict:
             **defaults,
             **{k: v for k, v in org_settings.items() if not isinstance(v, dict)},
         }
-        this_defaults.update(org_settings.get("defaults", {}))
+        this_defaults |= org_settings.get("defaults", {})
 
         org_repos = {
             k: v
@@ -29,5 +32,12 @@ def get_repo_config() -> dict:
         for repo, settings in org_repos.items():
             actual_settings = {**this_defaults, **settings}
             out_repos[f"{orgname}/{repo}"] = actual_settings
+
+            if "org-file" not in actual_settings:
+                raise ValueError(
+                    "org-file must be defined either in defaults or each repo"
+                )
+
+            actual_settings["org-file"] = Path(actual_settings["org-file"]).expanduser()
 
     return out_repos

@@ -1,10 +1,12 @@
-import click
+"""CLI interface."""
 import logging
+
+import click
 import toml
 from rich.console import Console
 from rich.logging import RichHandler
 
-from .cfg import config as CONFIG
+from .cfg import config as CONFIG  # noqa: N812
 from .cfg import get_repo_config
 from .github import get_all_github_issues
 from .org import get_org_nodes
@@ -22,7 +24,6 @@ logging.basicConfig(
             console=console,
             show_time=False,
             show_path=False,
-            # markup=True,
             rich_tracebacks=True,
             tracebacks_show_locals=True,
         )
@@ -41,6 +42,7 @@ logging.basicConfig(
     default="INFO",
 )
 def write(repo, org, log_level):
+    """Write required tasks to console."""
     logging.getLogger("github_to_org").setLevel(log_level)
 
     issues = get_all_github_issues(repo, org)
@@ -48,7 +50,7 @@ def write(repo, org, log_level):
     for repo, text in output.items():
         console.rule(repo)
         if text:
-            print(text)
+            console.print(text)
         else:
             console.print("[green bold] :heavy_check_mark: All tasks already in org!")
 
@@ -56,21 +58,23 @@ def write(repo, org, log_level):
         if ctxt:
             console.print()
             console.print("[red bold]ISSUES TO CLOSE:")
-            print(ctxt)
+            console.print(ctxt)
 
-        print()
+        console.print()
 
 
 @main.group()
 def config():
-    pass
+    """Group of commands to do with configuration."""
 
 
 @config.command()
 def view():
+    """View the current configuration."""
     console.print(toml.dumps(CONFIG))
 
 
 @config.command()
 def repos():
+    """View the list of repositories configured."""
     console.print(toml.dumps(get_repo_config()))

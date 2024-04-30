@@ -1,0 +1,126 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "src/github_to_org/_version.py"
+parentdir_prefix_version = "github-to-org-"
+fallback_version = "0.0.0"
+
+[project]
+name = "github-to-org"
+authors = [
+    {name="Steven Murray", email="steven.murray@sns.it"}
+]
+description = "Make all your GitHub todo's org-todos"
+license = {text="MIT"}
+requires-python=">=3.9"
+keywords=["emacs", "org-mode", "github"]
+dependencies=[
+    "orgparse",
+    "pygithub",
+    "toml",
+    "click",
+    "rich",
+]
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python",
+]
+dynamic = ["readme", "version"]
+
+[project.urls]
+repository = "https://github.com/steven-murray/github-to-org"
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.md"]}
+
+
+[project.optional-dependencies]
+tests = [
+    "pytest",
+    "pytest-cov",
+]
+dev = [
+    "pre-commit",
+    "github-to-org[tests]"
+]
+
+[project.scripts]
+gh2org = "github_to_org.cli:main"
+
+
+[tool.pytest_ini]
+# Options for py.test:
+# Specify command line options as you would do when invoking py.test directly.
+# e.g. --cov-report html (or xml) for html/xml output or --junitxml junit.xml
+# in order to write a coverage file that can be read by Jenkins.
+addopts = [
+    "--cov github_to_org ",
+    "--cov-report term-missing",
+    "--verbose"
+]
+
+norecursedirs = [
+    "dist",
+    "build",
+    ".tox"
+]
+
+testpaths = "tests"
+
+
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+
+[tool.ruff.lint]
+extend-select = [
+  "UP",   # pyupgrade
+  "E",    # pycodestyle
+  "W",    # pycodestyle warning
+  "C90",  # mccabe complexity
+  "I",    # isort
+  "N",    # pep8-naming
+  "D",    # docstyle
+  # "ANN"   # type annotations
+  "B",    # bugbear
+  "A",    # builtins
+  "C4",   # comprehensions
+  "DTZ",  # datetime
+  "FA",   # future annotations
+  "PIE",  # flake8-pie
+  "T",    # print statements
+  "PT",   # pytest-style
+  "Q",    # quotes
+  "SIM",  # simplify
+  "PTH",  # use Pathlib
+  "ERA",  # kill commented code
+  "NPY",  # numpy-specific rules
+  "PERF", # performance
+  # "FURB", # refurb
+  "RUF",  # ruff-specific rules
+]
+ignore = [
+    "DTZ007",   # use %z in strptime
+    "A003",     # class attribute shadows python builtin
+    "B008",     # function call in argument defaults
+]
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = [
+    "D103",  # ignore missing docstring in tests
+    "DTZ",   # ignore datetime in tests
+    "T",     # print statements
+]
+"docs/conf.py" = [
+    "A",  # conf.py can shadow builtins
+    "ERA",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = 'numpy'
+
+[tool.ruff.lint.mccabe]
+max-complexity = 15

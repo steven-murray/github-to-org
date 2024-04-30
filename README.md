@@ -1,7 +1,4 @@
-=============
-github-to-org
-=============
-
+# github-to-org
 
 **Make all your GitHub todo's org-todos.**
 
@@ -11,7 +8,7 @@ don't want to duplicate effort by manually copying each of these into my org fil
 This little python package makes it easy to grab all of my Github issues and PRs, and
 convert them to org mode format.
 
-Features:
+## Features:
 
 * Highly configurable. A TOML config file ``~/.ghorg`` houses a very flexible set of
   configurations (like, how to set priorities and schedules for different issues on a
@@ -30,8 +27,7 @@ Features:
   organizations.
 
 
-Setup
-=====
+## Setup
 
 To install, simply do::
 

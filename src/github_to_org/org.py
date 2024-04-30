@@ -1,11 +1,12 @@
-"""Methods for creating an Org structure/file"""
+"""Methods for creating an Org structure/file."""
+from __future__ import annotations
 
 import datetime as dt
 import logging
 import warnings
-from github.Issue import Issue
 from pathlib import Path
-from typing import List, Tuple
+
+from github.Issue import Issue
 
 from .cfg import get_repo_config
 from .priorities import get_priority
@@ -25,10 +26,9 @@ def get_node_level(line) -> int:
 def get_org_node(
     repo_name: str,
     fname: str | Path,
-) -> Tuple[str, int]:
-    """Get a unique org node associated with a repository"""
-
-    with open(fname, "r") as fl:
+) -> tuple[str, int]:
+    """Get a unique org node associated with a repository."""
+    with Path(fname).open() as fl:
         in_node = False
         n_lines = 0
         lines = fl.readlines()
@@ -68,7 +68,8 @@ def get_existing_tasks(node: str, repo: str) -> dict[int, str]:
                 ids[int(line.split("/issues/")[-1].split("]")[0])] = line
             except ValueError:
                 warnings.warn(
-                    f"This line has formatting incompatible with gh2org: {line}"
+                    f"This line has formatting incompatible with gh2org: {line}",
+                    stacklevel=2,
                 )
         elif f"{repo.lower()}/pull/" in line.lower():
             logger.debug(f"Found /pull/ in line {line}")
@@ -76,15 +77,16 @@ def get_existing_tasks(node: str, repo: str) -> dict[int, str]:
                 ids[int(line.split("/pull/")[-1].split("]")[0])] = line
             except ValueError:
                 warnings.warn(
-                    f"This line has formatting incompatible with gh2org: {line}"
+                    f"This line has formatting incompatible with gh2org: {line}",
+                    stacklevel=2,
                 )
     return ids
 
 
 def convert_issue_list_to_org(
-    issues: List[Issue], existing_tasks: dict[int, str], settings: dict, level: int
+    issues: list[Issue], existing_tasks: dict[int, str], settings: dict, level: int
 ) -> str:
-    """Convert your list of issues to an Org structure"""
+    """Convert your list of issues to an Org structure."""
     text = ""
     for issue in issues:
         if issue.number not in existing_tasks:
@@ -98,6 +100,7 @@ def convert_issue_list_to_org(
 def issue_to_node_str(
     issue: Issue, priority: str | None, schedule: dt.datetime, level: int
 ):
+    """Format a Github Issue as an org-mode node."""
     priority = "" if priority is None else f"[#{priority}]"
     if schedule is None:
         schedule = ""
@@ -110,7 +113,8 @@ def issue_to_node_str(
     )
 
 
-def find_closed_issues(existing_tasks: dict[int, str], issues: List[Issue]) -> str:
+def find_closed_issues(existing_tasks: dict[int, str], issues: list[Issue]) -> str:
+    """Find all the closed issues."""
     text = ""
     issue_ids = [issue.number for issue in issues]
     for task, description in existing_tasks.items():
@@ -124,11 +128,13 @@ def find_closed_issues(existing_tasks: dict[int, str], issues: List[Issue]) -> s
     return text
 
 
-def get_org_nodes(issues: dict) -> Tuple[dict, dict]:
+def get_org_nodes(issues: dict) -> tuple[dict, dict]:
+    """Get nodes in the org-file."""
     repo_cfg = get_repo_config()
 
     out = {}
     closers = {}
+
     for repo, issue_list in issues.items():
         node, level = get_org_node(repo, repo_cfg[repo]["org-file"])
         logger.debug(f"For repo {repo}, got node text:")
@@ -151,8 +157,3 @@ def get_org_nodes(issues: dict) -> Tuple[dict, dict]:
 
         out[repo] = text
     return out, closers
-
-
-def write_org(org, fname: str | Path):
-    """Write out an Org structure to file"""
-    pass
