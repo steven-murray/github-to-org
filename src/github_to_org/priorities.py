@@ -1,11 +1,15 @@
+"""Functions to manage priorities."""
+from __future__ import annotations
+
 from functools import wraps
+
 from github.Issue import Issue
-from typing import List
 
 _priority_funcs = {None: lambda issue, **kwargs: None}
 
 
 def prioritizer(func):
+    """Mark a function as a function that sets priorities."""
     _priority_funcs[func.__name__] = func
 
     @wraps(func)
@@ -15,7 +19,8 @@ def prioritizer(func):
     return func_wrapper
 
 
-def get_priority(issue: Issue, settings: List[dict]) -> [int, None]:
+def get_priority(issue: Issue, settings: list[dict]) -> int | None:
+    """Return the priority of a given issue."""
     priority = None
 
     for setting in settings:
@@ -33,13 +38,15 @@ def get_priority(issue: Issue, settings: List[dict]) -> [int, None]:
 
 
 @prioritizer
-def by_milestone(issue: Issue, milestone_map: dict) -> [None, int]:
+def by_milestone(issue: Issue, milestone_map: dict) -> int | None:
+    """Priorize by milestone."""
     if issue.milestone:
-        return milestone_map.get(issue.milestone.title, None)
+        return milestone_map.get(issue.milestone.title)
 
 
 @prioritizer
-def by_label(issue: Issue, label_map: dict) -> [None, int]:
+def by_label(issue: Issue, label_map: dict) -> int | None:
+    """Prioritize by label."""
     priority = None
 
     for label in issue.labels:
@@ -52,7 +59,8 @@ def by_label(issue: Issue, label_map: dict) -> [None, int]:
 
 
 @prioritizer
-def by_milestone_label(issue: Issue, milestone_map: dict) -> [None, int]:
+def by_milestone_label(issue: Issue, milestone_map: dict) -> int | None:
+    """Priorize by combination of milestone and label."""
     if issue.milestone:
         dct = milestone_map.get(issue.milestone.title, {})
 
@@ -61,5 +69,6 @@ def by_milestone_label(issue: Issue, milestone_map: dict) -> [None, int]:
 
 @prioritizer
 def static(issue: Issue, priority: str):
+    """Explicitly set the priority."""
     assert len(priority) == 1
     return priority

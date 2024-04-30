@@ -1,7 +1,7 @@
-"""Routines for scraping GitHub Issues"""
+"""Routines for scraping GitHub Issues."""
 import logging
+
 from github import Github, UnknownObjectException
-from typing import List
 
 from .cfg import config, get_repo_config
 
@@ -16,10 +16,11 @@ user = gh.get_user(config["settings"]["gh-user"])
 
 
 def get_filtered_issues(repo_name: str, filters: dict) -> list:
+    """Get a list of GitHub issues, filtered by the given filters."""
     try:
         repo = gh.get_repo(repo_name)
-    except UnknownObjectException:
-        raise IOError(f"Repo {repo_name} doesn't exist!")
+    except UnknownObjectException as e:
+        raise OSError(f"Repo {repo_name} doesn't exist!") from e
 
     issues = list(repo.get_issues(**{k: v for k, v in filters.items() if k != "prs"}))
 
@@ -30,7 +31,7 @@ def get_filtered_issues(repo_name: str, filters: dict) -> list:
     return issues
 
 
-def get_all_github_issues(repo: List[str], org: List[str]) -> dict:
+def get_all_github_issues(repo: list[str], org: list[str]) -> dict:
     """Go to your github and grab a big ol' list of issues."""
     repos = get_repo_config()
 
