@@ -1,4 +1,5 @@
 """Methods for creating an Org structure/file."""
+
 from __future__ import annotations
 
 import datetime as dt
