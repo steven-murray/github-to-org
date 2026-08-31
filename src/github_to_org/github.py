@@ -1,4 +1,5 @@
 """Routines for scraping GitHub Issues."""
+
 import logging
 
 from github import Github, UnknownObjectException
