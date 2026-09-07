@@ -1,4 +1,5 @@
 """Configuration."""
+
 from pathlib import Path
 
 import toml
