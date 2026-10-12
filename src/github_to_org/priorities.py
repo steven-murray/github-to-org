@@ -1,4 +1,5 @@
 """Functions to manage priorities."""
+
 from __future__ import annotations
 
 from functools import wraps
