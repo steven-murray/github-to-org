@@ -1,4 +1,5 @@
 """CLI interface."""
+
 import logging
 
 import click
@@ -47,14 +48,14 @@ def write(repo, org, log_level):
 
     issues = get_all_github_issues(repo, org)
     output, closers = get_org_nodes(issues)
-    for repo, text in output.items():
-        console.rule(repo)
+    for repo_name, text in output.items():
+        console.rule(repo_name)
         if text:
             console.print(text)
         else:
             console.print("[green bold] :heavy_check_mark: All tasks already in org!")
 
-        ctxt = closers[repo]
+        ctxt = closers[repo_name]
         if ctxt:
             console.print()
             console.print("[red bold]ISSUES TO CLOSE:")

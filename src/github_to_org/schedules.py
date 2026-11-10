@@ -1,4 +1,5 @@
 """Functions that can set schedules based on issue properties."""
+
 import datetime as dt
 from functools import wraps
 

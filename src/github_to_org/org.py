@@ -1,4 +1,5 @@
 """Methods for creating an Org structure/file."""
+
 from __future__ import annotations
 
 import datetime as dt
@@ -108,7 +109,7 @@ def issue_to_node_str(
         schedule = f"DEADLINE: <{schedule.year}-{schedule.month}-{schedule.day}>"
 
     return (
-        f"{'*'*level} TODO {priority} [[{issue.html_url}][{issue.repository.name}/"
+        f"{'*' * level} TODO {priority} [[{issue.html_url}][{issue.repository.name}/"
         f"{issue.number}]]: {issue.title}\n"
     )
 
